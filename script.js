@@ -8,7 +8,7 @@ const background = {
 
 const ground = {
     element: document.getElementById('ground'),
-    speed: 4,
+    speed: 6,
     loopingPoint: 600
 }
 
@@ -21,11 +21,26 @@ const dino = {
     isJumping: false
 }
 
-window.addEventListener('keydown', jump);
+const score = {
+    INITIAL: '00000',
+    current: 0,
+    display: document.getElementById('score'),
+  
+    increment() {
+      ++this.current;
+      this.display.textContent = this.INITIAL.substring(0, this.INITIAL.length - this.current.toString().length) + this.current;
+    },
+  
+    reset() { // to be called when a new game starts
+      this.current = 0;
+      this.display.textContent = this.INITIAL;
+    }
+}
+
 
 let playingInterval;
 // when starting the game:
-playing = setInterval(update, 90);
+playing = setInterval(update, 100);
 
 // game over:
 // clearInterval(playing);
@@ -36,6 +51,7 @@ function update() {
    if (!dino.isJumping) { run(); };
    obstacles.spawn();
    obstacles.move();
+    score.increment();
 }
 
 function move(obj) {
@@ -50,6 +66,8 @@ function run() {
         dino.element.setAttribute('src', dino.dinoRun1)
     }
 }
+
+window.addEventListener('keydown', jump);
 
 function jump(event) {
     if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
@@ -83,7 +101,7 @@ const obstacles = {
     onScreen: [],
     initialFrequency: 80,
     frequency: 80, // will be increased to increase difficulty (?)
-    speed: 4,
+    speed: 6,
 
     spawn() {
         if (Math.random() * this.frequency >= this.initialFrequency - 1) {
