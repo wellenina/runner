@@ -1,0 +1,26 @@
+#runner-container {
+    width: 600px;
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+    background-color: rgb(247, 247, 247);
+    border: 1px solid black;
+    margin: 50px auto;
+}
+  
+#runner-container * {
+    position: absolute;
+}
+
+#background {
+    top: 45px;
+}
+
+#ground {
+    bottom: 10px;
+}
+
+#dino {
+    bottom: 12px;
+    left: 22px;
+}
