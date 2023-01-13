@@ -10,6 +10,29 @@
   
 #runner-container * {
     position: absolute;
+    margin: 0;
+    font-family: 'Press Start 2P', cursive;
+    color: #5d5d5d;
+}
+
+#runner-container > p {
+    right: 10px;
+    top: 10px;
+  }
+  
+#runner-container > h3 {
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.5;
+    top: 34px;
+    left: 0;
+    right: 0;
+}
+  
+#game-over {
+    display: none;
+    text-transform: uppercase;
+    letter-spacing: 7px;
 }
 
 #background {
