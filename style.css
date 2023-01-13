@@ -37,10 +37,12 @@
 
 #background {
     top: 45px;
+    display: none;
 }
 
 #ground {
     bottom: 10px;
+    display: none;
 }
 
 #dino {
