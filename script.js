@@ -34,6 +34,8 @@ function update() {
    move(background);
    move(ground);
    if (!dino.isJumping) { run(); };
+   obstacles.spawn();
+   obstacles.move();
 }
 
 function move(obj) {
@@ -61,3 +63,47 @@ dino.element.addEventListener('animationend', () => {
     dino.isJumping = false;
     dino.element.className = 'running';
 });
+
+
+
+////////// obstacles
+
+const smallCactus = document.createElement('img');
+smallCactus.setAttribute('src', 'images/obstacle-small.png');
+smallCactus.classList.add('obstacle', 'small-cactus');
+smallCactus.style.left = '650px'; // si potrebbe settare per tutti gli ostacoli al load della pagina
+
+const largeCactus = document.createElement('img');
+largeCactus.setAttribute('src', 'images/obstacle-large.png');
+largeCactus.classList.add('obstacle', 'large-cactus');
+largeCactus.style.left = '650px'; // si potrebbe settare per tutti gli ostacoli al load della pagina
+
+const obstacles = {
+    all: [smallCactus, largeCactus],
+    onScreen: [],
+    initialFrequency: 80,
+    frequency: 80, // will be increased to increase difficulty (?)
+    speed: 4,
+
+    spawn() {
+        if (Math.random() * this.frequency >= this.initialFrequency - 1) {
+            const newObstacle = this.all[Math.floor(Math.random() * this.all.length)].cloneNode();
+            this.onScreen.push(newObstacle);
+            runnerContainer.appendChild(newObstacle);
+        }
+    },
+    
+    move() {
+        if (!this.onScreen.length) { return; };
+ 
+        // if there are obstacles on the screen, move each one to the left
+        this.onScreen.forEach(obstacle => {
+            obstacle.style.left = `${parseFloat(obstacle.style.left) - this.speed}px`;
+        });
+
+        if (parseFloat(this.onScreen[0].style.left) < -50) { // if the first obstacle is past the left border of the container
+            runnerContainer.removeChild(this.onScreen[0]);
+            this.onScreen.shift();
+        }          
+    }
+};
