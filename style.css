@@ -50,15 +50,6 @@
     left: 22px;
 }
 
-.jumping {
-    animation: jump 1s ease;
-}
-@keyframes jump {
-    0% { transform:translateY(0%); }
-    50% { transform:translateY(-150%); }
-    100% { transform:translateY(0); }
-}
-
 .obstacle {
     bottom: 12px;
     left: 650px;

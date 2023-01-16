@@ -3,6 +3,12 @@ let FRAME_DURATION = 100; // milliseconds
 let BACKGROUND_SPEED = 1; // pixels per update
 let FOREGROUND_SPEED = 6; // ground & obstacles
 
+let JUMP_STARTING_POINT = 12; // px from the bottom
+let JUMP_GRAVITY = 3;
+//let JUMP_DURATION = 800; // milliseconds
+let JUMP_FRAME_DURATION = 30;
+let JUMP_HEIGHT = 20; // px per frame
+
 let OBSTACLES_INITIAL_GAP = 15;
 let OBSTACLES_MIN_GAP = 10;
 let OBSTACLES_MAX_GAP = 80;
@@ -27,6 +33,7 @@ const dino = {
     imgJump: 'images/dino-jump.png',
     imgDead: 'images/dino-dead.png',
     isJumping: false,
+    jumpHeight: JUMP_HEIGHT,
 
 
     run() {
@@ -36,22 +43,32 @@ const dino = {
             this.element.setAttribute('src', this.imgRun1)
         }
     },
-    
+
     jump() {
         this.isJumping = true;
-        this.element.className = 'jumping';
         this.element.setAttribute('src', this.imgJump);
+        let jumpingInterval = setInterval(function() {
+            dino.element.style.bottom = `${parseFloat(dino.element.style.bottom) + dino.jumpHeight}px`;
+            dino.jumpHeight = dino.jumpHeight - JUMP_GRAVITY;
+            if (parseInt(dino.element.style.bottom) <= JUMP_STARTING_POINT) {
+                dino.element.style.bottom = `${JUMP_STARTING_POINT}px`;
+                dino.jumpHeight = JUMP_HEIGHT;
+                dino.isJumping = false;
+                clearInterval(jumpingInterval);
+            }
+        }, JUMP_FRAME_DURATION);
     },
 
     end() {
         this.element.setAttribute('src', this.imgDead);
+    },
+
+    reset() {
+        this.element.style.bottom = `${STARTING_POINT}px`;
+        this.isJumping = false;
+        this.jumpHeight = JUMP_HEIGHT;
     }
 };
-
-dino.element.addEventListener('animationend', () => {
-    dino.isJumping = false;
-    dino.element.className = 'running';
-});
 
 const score = {
     INITIAL: '00000',
@@ -144,7 +161,7 @@ function keyPressed(event) {
                 startGame();
                 break;
             case 'play':
-                dino.jump();
+                if (!dino.isJumping) { dino.jump(); };
                 break;
             case 'over':
                 reStartGame();
@@ -164,6 +181,7 @@ function startGame() {
     document.getElementById('game-start').style.display = 'none'; // tolgo il testo iniziale
     display(background); // faccio apparire lo sfondo
     display(ground);
+    dino.element.style.bottom = `${JUMP_STARTING_POINT}px`;
     obstacles.getReady();
     playInterval = setInterval(update, FRAME_DURATION); // faccio partire il ciclo di update
 }
@@ -185,10 +203,10 @@ function detectCollision() { // will return true or false
 function update() {
    move(background);
    move(ground);
-   if (!dino.isJumping) { dino.run(); };
-   if (obstacles.isItSpawningTime()) { obstacles.spawn(); };
+   if (!dino.isJumping) { dino.run(); }; /////////////
+   if (obstacles.isItSpawningTime()) { obstacles.spawn(); }; //////////////
    obstacles.move();
-   score.increment();
+   score.increment(); ///////////////////
    if (detectCollision()) { endGame(); };
 }
 
@@ -213,9 +231,13 @@ function endGame() {
 function reStartGame() {
     gameState = 'play'; // cambio stato
     document.getElementById('game-over').style.display = 'none'; // tolgo il testo 'game over'
+    dino.reset();
     score.reset(); // resetto il punteggio
     obstacles.reset();
     resetDifficulty(); // resettare difficoltà, cioè velocità e frequenza degli ostacoli
     playInterval = setInterval(update, FRAME_DURATION); // faccio RIpartire il ciclo di update
     
 }
+
+
+
