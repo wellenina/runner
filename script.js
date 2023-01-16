@@ -1,16 +1,16 @@
-let FRAME_DURATION = 100; // milliseconds
+let FRAME_DURATION = 30; // milliseconds
+let frameCounter = 0;
 
 let BACKGROUND_SPEED = 1; // pixels per update
-let FOREGROUND_SPEED = 6; // ground & obstacles
+let FOREGROUND_SPEED = 7; // ground & obstacles
 
 let JUMP_STARTING_POINT = 12; // px from the bottom
-let JUMP_GRAVITY = 3;
-let JUMP_FRAME_DURATION = 30;
+let JUMP_GRAVITY = 2;
 let JUMP_HEIGHT = 20; // px per frame
 
-let OBSTACLES_INITIAL_GAP = 15;
-let OBSTACLES_MIN_GAP = 10;
-let OBSTACLES_MAX_GAP = 80;
+let OBSTACLES_INITIAL_GAP = 45;
+let OBSTACLES_MIN_GAP = 30;
+let OBSTACLES_MAX_GAP = 240;
 
 const background = {
     element: document.getElementById('background'),
@@ -36,6 +36,7 @@ const dino = {
 
 
     run() {
+        if (frameCounter % 3 !== 0) { return; }; 
         if (this.element.getAttribute('src') === this.imgRun1) {
             this.element.setAttribute('src', this.imgRun2)
         } else {
@@ -44,18 +45,13 @@ const dino = {
     },
 
     jump() {
-        this.isJumping = true;
-        this.element.setAttribute('src', this.imgJump);
-        let jumpingInterval = setInterval(function() {
-            dino.element.style.bottom = `${parseFloat(dino.element.style.bottom) + dino.jumpHeight}px`;
-            dino.jumpHeight = dino.jumpHeight - JUMP_GRAVITY;
-            if (parseInt(dino.element.style.bottom) <= JUMP_STARTING_POINT) {
-                dino.element.style.bottom = `${JUMP_STARTING_POINT}px`;
-                dino.jumpHeight = JUMP_HEIGHT;
-                dino.isJumping = false;
-                clearInterval(jumpingInterval);
-            }
-        }, JUMP_FRAME_DURATION);
+        this.element.style.bottom = `${parseFloat(this.element.style.bottom) + this.jumpHeight}px`;
+        this.jumpHeight = this.jumpHeight - JUMP_GRAVITY;
+        if (parseInt(this.element.style.bottom) <= JUMP_STARTING_POINT) {
+            this.element.style.bottom = `${JUMP_STARTING_POINT}px`;
+            this.jumpHeight = JUMP_HEIGHT;
+            this.isJumping = false;
+        }
     },
 
     end() {
@@ -75,13 +71,14 @@ const score = {
     display: document.getElementById('score'),
   
     increment() {
-      ++this.current;
-      this.display.textContent = this.INITIAL.substring(0, this.INITIAL.length - this.current.toString().length) + this.current;
+        if (frameCounter % 3 !== 0) { return; };
+        ++this.current;
+        this.display.textContent = this.INITIAL.substring(0, this.INITIAL.length - this.current.toString().length) + this.current;
     },
   
     reset() {
-      this.current = 0;
-      this.display.textContent = this.INITIAL;
+        this.current = 0;
+        this.display.textContent = this.INITIAL;
     }
 }
 
@@ -141,8 +138,11 @@ const obstacles = {
     detectCollision() {
         if (!this.onScreen.length) { return false; };
 
-        if (this.onScreen[0].offsetLeft <= dino.element.offsetLeft + dino.element.offsetWidth) {
+        if (this.onScreen[0].offsetLeft <= dino.element.offsetLeft + dino.element.offsetWidth - 2
+            && this.onScreen[0].offsetLeft + this.onScreen[0].offsetWidth >= dino.element.offsetLeft) {
             if (this.onScreen[0].offsetTop <= dino.element.offsetTop + dino.element.offsetHeight) {
+                // it only detects collisions between the top of the obstacle and the bottom of the character
+                // because, in this version, there's no way for the obstacle to be on top of the character
                 return true;}
             };
 
@@ -162,16 +162,19 @@ const obstacles = {
 const runnerContainer = document.getElementById('runner-container');
 let gameState = 'start';
 let playInterval;
-window.addEventListener('keydown', keyPressed);
+window.addEventListener('keydown', control);
 
-function keyPressed(event) {
+function control(event) {
     if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
         switch(gameState) {
             case 'start': // questo succede solo alla prima partita
                 startGame();
                 break;
             case 'play':
-                if (!dino.isJumping) { dino.jump(); };
+                if (!dino.isJumping) {
+                    dino.isJumping = true;
+                    dino.element.setAttribute('src', dino.imgJump);
+                };
                 break;
             case 'over':
                 reStartGame();
@@ -206,13 +209,14 @@ function move(obj) {
 }
 
 function update() {
-   move(background);
-   move(ground);
-   if (!dino.isJumping) { dino.run(); }; /////////////
-   if (obstacles.isItSpawningTime()) { obstacles.spawn(); }; //////////////
-   obstacles.move();
-   score.increment(); ///////////////////
-   if (obstacles.detectCollision()) { endGame(); };
+    frameCounter++;
+    move(background);
+    move(ground);
+    dino.isJumping ? dino.jump() : dino.run();
+    if (obstacles.isItSpawningTime()) { obstacles.spawn(); };
+    obstacles.move();
+    score.increment();
+    if (obstacles.detectCollision()) { endGame(); };
 }
 
 function increaseDifficulty() {
@@ -227,10 +231,12 @@ function resetDifficulty() {
 } 
 
 function endGame() {
+    window.removeEventListener('keydown', control);
     gameState = 'over';
     clearInterval(playInterval);
     document.getElementById('game-over').style.display = 'block';
     dino.end();
+    setTimeout(function() {window.addEventListener('keydown', control);}, 1000);
 }
 
 function reStartGame() {
