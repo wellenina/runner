@@ -1,7 +1,4 @@
-let FRAME_DURATION = 30; // milliseconds
-let frameCounter = 0;
-
-let BACKGROUND_SPEED = 1; // pixels per update
+let BACKGROUND_SPEED = 1; // pixels per frame
 let FOREGROUND_SPEED = 7; // ground & obstacles
 
 let JUMP_STARTING_POINT = 12; // px from the bottom
@@ -33,7 +30,6 @@ const dino = {
     imgDead: 'images/dino-dead.png',
     isJumping: false,
     jumpHeight: JUMP_HEIGHT,
-
 
     run() {
         if (frameCounter % 3 !== 0) { return; }; 
@@ -142,7 +138,7 @@ const obstacles = {
             && this.onScreen[0].offsetLeft + this.onScreen[0].offsetWidth >= dino.element.offsetLeft) {
             if (this.onScreen[0].offsetTop <= dino.element.offsetTop + dino.element.offsetHeight) {
                 // it only detects collisions between the top of the obstacle and the bottom of the character
-                // because, in this version, there's no way for the obstacle to be on top of the character
+                // since, in this version, there's no way for the obstacle to be on top of the character
                 return true;}
             };
 
@@ -159,19 +155,38 @@ const obstacles = {
     }
 };
 
+const sounds = {
+    jump: new Audio('sounds/jump.wav'),
+    end: new Audio('sounds/hurt.wav'),
+
+    play(sound) {
+        this[sound].play();
+    }
+};
+
 const runnerContainer = document.getElementById('runner-container');
 let gameState = 'start';
-let playInterval;
+let frameCounter = 0;
+let interval;
+
+function startInterval() {
+    interval = setInterval(update, 30);
+}
+function stopInterval() {
+    clearInterval(interval);
+}
+
 window.addEventListener('keydown', control);
 
 function control(event) {
     if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
         switch(gameState) {
-            case 'start': // questo succede solo alla prima partita
+            case 'start':
                 startGame();
                 break;
             case 'play':
                 if (!dino.isJumping) {
+                    sounds.play('jump');
                     dino.isJumping = true;
                     dino.element.setAttribute('src', dino.imgJump);
                 };
@@ -182,21 +197,21 @@ function control(event) {
     }
 };
 
-// window.addEventListener('blur', () => {
-//     if (gameState === 'play') { clearInterval(playInterval); };
-// });
-// window.addEventListener('focus', () => {
-//     if (gameState === 'play') { playInterval = setInterval(update, FRAME_DURATION); };
-// });
+window.addEventListener('blur', () => {
+    if (gameState === 'play') { stopInterval(); };
+});
+window.addEventListener('focus', () => {
+    if (gameState === 'play') { startInterval(); };
+});
 
 function startGame() {
-    gameState = 'play'; // cambio stato
-    document.getElementById('game-start').style.display = 'none'; // tolgo il testo iniziale
-    display(background); // faccio apparire lo sfondo
+    gameState = 'play';
+    document.getElementById('game-start').style.display = 'none';
+    display(background);
     display(ground);
     dino.element.style.bottom = `${JUMP_STARTING_POINT}px`;
     obstacles.getReady();
-    playInterval = setInterval(update, FRAME_DURATION); // faccio partire il ciclo di update
+    startInterval();
 }
 
 function display(obj) {
@@ -232,23 +247,20 @@ function resetDifficulty() {
 
 function endGame() {
     window.removeEventListener('keydown', control);
+    sounds.play('end');
     gameState = 'over';
-    clearInterval(playInterval);
+    stopInterval();
     document.getElementById('game-over').style.display = 'block';
     dino.end();
     setTimeout(function() {window.addEventListener('keydown', control);}, 1000);
 }
 
 function reStartGame() {
-    gameState = 'play'; // cambio stato
-    document.getElementById('game-over').style.display = 'none'; // tolgo il testo 'game over'
+    gameState = 'play';
+    document.getElementById('game-over').style.display = 'none';
     dino.reset();
-    score.reset(); // resetto il punteggio
+    score.reset();
     obstacles.reset();
-    resetDifficulty(); // resettare difficoltà, cioè velocità e frequenza degli ostacoli
-    playInterval = setInterval(update, FRAME_DURATION); // faccio RIpartire il ciclo di update
-    
+    resetDifficulty();
+    startInterval();
 }
-
-
-
