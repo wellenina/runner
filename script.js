@@ -5,7 +5,6 @@ let FOREGROUND_SPEED = 6; // ground & obstacles
 
 let JUMP_STARTING_POINT = 12; // px from the bottom
 let JUMP_GRAVITY = 3;
-//let JUMP_DURATION = 800; // milliseconds
 let JUMP_FRAME_DURATION = 30;
 let JUMP_HEIGHT = 20; // px per frame
 
@@ -64,7 +63,7 @@ const dino = {
     },
 
     reset() {
-        this.element.style.bottom = `${STARTING_POINT}px`;
+        this.element.style.bottom = `${JUMP_STARTING_POINT}px`;
         this.isJumping = false;
         this.jumpHeight = JUMP_HEIGHT;
     }
@@ -139,6 +138,17 @@ const obstacles = {
         }          
     },
 
+    detectCollision() {
+        if (!this.onScreen.length) { return false; };
+
+        if (this.onScreen[0].offsetLeft <= dino.element.offsetLeft + dino.element.offsetWidth) {
+            if (this.onScreen[0].offsetTop <= dino.element.offsetTop + dino.element.offsetHeight) {
+                return true;}
+            };
+
+        return false;
+    },
+
     reset() {
         this.onScreen.forEach(obstacle => {
             runnerContainer.removeChild(obstacle);
@@ -195,11 +205,6 @@ function move(obj) {
     obj.element.style.left = `${(parseFloat(obj.element.style.left) - obj.speed) % obj.loopingPoint}px`;
 }
 
-function detectCollision() { // will return true or false
-    // there will be some awesome code here
-    return false;
-}
-
 function update() {
    move(background);
    move(ground);
@@ -207,7 +212,7 @@ function update() {
    if (obstacles.isItSpawningTime()) { obstacles.spawn(); }; //////////////
    obstacles.move();
    score.increment(); ///////////////////
-   if (detectCollision()) { endGame(); };
+   if (obstacles.detectCollision()) { endGame(); };
 }
 
 function increaseDifficulty() {
