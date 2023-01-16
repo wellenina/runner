@@ -1,8 +1,11 @@
-let BACKGROUND_SPEED = 1;
-let FOREGROUND_SPEED = 6;
+let FRAME_DURATION = 100; // milliseconds
 
+let BACKGROUND_SPEED = 1; // pixels per update
+let FOREGROUND_SPEED = 6; // ground & obstacles
 
-const runnerContainer = document.getElementById('runner-container');
+let OBSTACLES_INITIAL_GAP = 15;
+let OBSTACLES_MIN_GAP = 10;
+let OBSTACLES_MAX_GAP = 80;
 
 const background = {
     element: document.getElementById('background'),
@@ -60,95 +63,49 @@ const score = {
       this.display.textContent = this.INITIAL.substring(0, this.INITIAL.length - this.current.toString().length) + this.current;
     },
   
-    reset() { // to be called when a new game starts
+    reset() {
       this.current = 0;
       this.display.textContent = this.INITIAL;
     }
 }
 
-window.addEventListener('keydown', keyPressed);
-let playingTime;
-let gameState = 'start';
-
-function keyPressed(event) {
-    if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
-        switch(gameState) {
-            case 'start': // questo succede solo alla prima partita
-              gameState = 'play'; // cambio stato
-              document.getElementById('game-start').style.display = 'none'; // tolgo il testo iniziale
-              display(background); // faccio apparire lo sfondo
-              display(ground);
-              playingTime = setInterval(update, 100); // faccio partire il ciclo di update
-              break;
-            case 'play':
-              dino.jump();
-              break;
-            case 'over':
-              gameState = 'play'; // cambio stato
-              document.getElementById('game-over').style.display = 'none'; // tolgo il testo 'game over'
-              score.reset(); // resetto il punteggio
-              playingTime = setInterval(update, 100); // faccio RIpartire il ciclo di update
-              // resettare difficoltà, cioè velocità e frequenza degli ostacoli
-          }
-    }
-};
-
-window.addEventListener('blur', () => {
-    clearInterval(playingTime);
-});
-window.addEventListener('focus', () => {
-    playingTime = setInterval(update, 100);
-});
-
-
-function update() {
-   move(background);
-   move(ground);
-   if (!dino.isJumping) { dino.run(); };
-   obstacles.spawn();
-   obstacles.move();
-   score.increment();
-   if (detectCollision()) { endGame(); };
-}
-
-function display(obj) {
-    obj.element.style.left = 0;
-    obj.element.style.display = 'block';
-}
-
-function move(obj) {
-    obj.element.style.left = `${(parseFloat(obj.element.style.left) - obj.speed) % obj.loopingPoint}px`;
-}
-
-
-
-
-
-////////// obstacles
-
 const smallCactus = document.createElement('img');
 smallCactus.setAttribute('src', 'images/obstacle-small.png');
-smallCactus.classList.add('obstacle', 'small-cactus');
-smallCactus.style.left = '650px'; // si potrebbe settare per tutti gli ostacoli al load della pagina
 
 const largeCactus = document.createElement('img');
 largeCactus.setAttribute('src', 'images/obstacle-large.png');
-largeCactus.classList.add('obstacle', 'large-cactus');
-largeCactus.style.left = '650px'; // si potrebbe settare per tutti gli ostacoli al load della pagina
 
 const obstacles = {
     all: [smallCactus, largeCactus],
     onScreen: [],
-    initialFrequency: 80,
-    frequency: 80, // will be increased to increase difficulty (?)
-    speed: 6,
+    speed: FOREGROUND_SPEED,
+    gap: OBSTACLES_INITIAL_GAP,
+    minGap: OBSTACLES_MIN_GAP,
+    maxGap: OBSTACLES_MAX_GAP,
+    timer: 0,
+
+    getReady() {
+        this.all.forEach(obstacle => {
+            obstacle.style.left = '650px';
+            obstacle.classList.add('obstacle');
+        });
+    },
+
+    isItSpawningTime() {
+        this.timer++;
+        if (this.timer === this.gap) {
+            this.timer = 0;
+            this.gap = Math.floor(Math.random() * (this.maxGap - this.minGap) + this.minGap);
+            return true;
+        } else {
+            return false;
+        }
+    },
 
     spawn() {
-        if (Math.random() * this.frequency >= this.initialFrequency - 1) {
-            const newObstacle = this.all[Math.floor(Math.random() * this.all.length)].cloneNode();
-            this.onScreen.push(newObstacle);
-            runnerContainer.appendChild(newObstacle);
-        }
+        const newObstacle = this.all[Math.floor(Math.random() * this.all.length)].cloneNode();
+        this.onScreen.push(newObstacle);
+        runnerContainer.appendChild(newObstacle);
     },
     
     move() {
@@ -163,17 +120,102 @@ const obstacles = {
             runnerContainer.removeChild(this.onScreen[0]);
             this.onScreen.shift();
         }          
+    },
+
+    reset() {
+        this.onScreen.forEach(obstacle => {
+            runnerContainer.removeChild(obstacle);
+        });
+        this.onScreen = [];
+        this.gap = OBSTACLES_INITIAL_GAP;
+        this.timer = 0;
     }
 };
+
+const runnerContainer = document.getElementById('runner-container');
+let gameState = 'start';
+let playInterval;
+window.addEventListener('keydown', keyPressed);
+
+function keyPressed(event) {
+    if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
+        switch(gameState) {
+            case 'start': // questo succede solo alla prima partita
+                startGame();
+                break;
+            case 'play':
+                dino.jump();
+                break;
+            case 'over':
+                reStartGame();
+          }
+    }
+};
+
+// window.addEventListener('blur', () => {
+//     if (gameState === 'play') { clearInterval(playInterval); };
+// });
+// window.addEventListener('focus', () => {
+//     if (gameState === 'play') { playInterval = setInterval(update, FRAME_DURATION); };
+// });
+
+function startGame() {
+    gameState = 'play'; // cambio stato
+    document.getElementById('game-start').style.display = 'none'; // tolgo il testo iniziale
+    display(background); // faccio apparire lo sfondo
+    display(ground);
+    obstacles.getReady();
+    playInterval = setInterval(update, FRAME_DURATION); // faccio partire il ciclo di update
+}
+
+function display(obj) {
+    obj.element.style.left = 0;
+    obj.element.style.display = 'block';
+}
+
+function move(obj) {
+    obj.element.style.left = `${(parseFloat(obj.element.style.left) - obj.speed) % obj.loopingPoint}px`;
+}
 
 function detectCollision() { // will return true or false
     // there will be some awesome code here
     return false;
 }
 
+function update() {
+   move(background);
+   move(ground);
+   if (!dino.isJumping) { dino.run(); };
+   if (obstacles.isItSpawningTime()) { obstacles.spawn(); };
+   obstacles.move();
+   score.increment();
+   if (detectCollision()) { endGame(); };
+}
+
+function increaseDifficulty() {
+    // some code
+}
+
+function resetDifficulty() {
+    background.speed = BACKGROUND_SPEED;
+    ground.speed = FOREGROUND_SPEED;
+    obstacles.speed = FOREGROUND_SPEED;
+    obstacles.maxGap = OBSTACLES_MAX_GAP;
+} 
+
 function endGame() {
     gameState = 'over';
-    clearInterval(playingTime);
+    clearInterval(playInterval);
     document.getElementById('game-over').style.display = 'block';
     dino.end();
+}
+
+function reStartGame() {
+    gameState = 'play'; // cambio stato
+    document.getElementById('game-over').style.display = 'none'; // tolgo il testo 'game over'
+    score.reset(); // resetto il punteggio
+    obstacles.reset();
+    resetDifficulty(); // resettare difficoltà, cioè velocità e frequenza degli ostacoli
+    playInterval = setInterval(update, FRAME_DURATION); // faccio RIpartire il ciclo di update
+    
 }
