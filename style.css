@@ -54,3 +54,70 @@
     bottom: 12px;
     left: 650px;
 }
+
+
+#info {
+    font-family: 'Press Start 2P';
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    text-align: center;
+    color: lightgray;
+    margin: 20px;
+}
+
+#debug-menu {
+    width: 890px;
+    margin: 0 auto;
+    border: 5px solid blue;
+    background-color: lightgray;
+    padding: 15px 25px;
+    font-family: 'Press Start 2P';
+    font-size: 1.1rem;
+    text-align: end;
+    text-transform: uppercase;
+}
+
+#debug-menu > div {
+    margin: 15px auto;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+button {
+    cursor: pointer;
+    text-align: center;
+    font-size: inherit;
+    font-family: inherit;
+    text-transform: inherit;
+    padding: 12px 22px;
+    appearance: none;
+}
+
+input {
+    margin-left: 20px;
+    padding: 9px;
+    width: 65px;
+    font-size: inherit;
+    font-family: inherit;
+    text-align: inherit;
+    appearance: none;
+}
+
+input[type="checkbox"] {
+    cursor: pointer;
+    appearance: auto;
+    margin: 0 20px 0 0;
+    width: 1.15em;
+    height: 1.15em;
+    transform: translateY(-0.075em);
+    accent-color: blue;
+}
+
+input[type="checkbox"]:checked {
+    background-color: rgb(247, 247, 247);
+}
+
+.hide {
+    display: none;
+}

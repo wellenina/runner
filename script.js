@@ -1,9 +1,10 @@
 let BACKGROUND_SPEED = 1; // pixels per frame
 let FOREGROUND_SPEED = 7; // ground & obstacles
 
-let JUMP_STARTING_POINT = 12; // px from the bottom
+const JUMP_STARTING_POINT = 12; // px from the bottom
 let JUMP_GRAVITY = 2;
-let JUMP_HEIGHT = 20; // px per frame
+let JUMP_INITIAL_HEIGHT = 20; // px per frame
+let JUMP_MAX_HEIGHT = 92;  // px from the bottom
 
 let OBSTACLES_INITIAL_GAP = 45;
 let OBSTACLES_MIN_GAP = 30;
@@ -29,7 +30,7 @@ const dino = {
     imgJump: 'images/dino-jump.png',
     imgDead: 'images/dino-dead.png',
     isJumping: false,
-    jumpHeight: JUMP_HEIGHT,
+    jumpHeight: JUMP_INITIAL_HEIGHT,
 
     run() {
         if (frameCounter % 3 !== 0) { return; }; 
@@ -42,11 +43,12 @@ const dino = {
 
     jump() {
         this.element.style.bottom = `${parseFloat(this.element.style.bottom) + this.jumpHeight}px`;
+        if (parseInt(this.element.style.bottom) >= JUMP_MAX_HEIGHT) {
+            this.jumpHeight = 0;
+        };
         this.jumpHeight = this.jumpHeight - JUMP_GRAVITY;
         if (parseInt(this.element.style.bottom) <= JUMP_STARTING_POINT) {
-            this.element.style.bottom = `${JUMP_STARTING_POINT}px`;
-            this.jumpHeight = JUMP_HEIGHT;
-            this.isJumping = false;
+            this.reset();
         }
     },
 
@@ -57,7 +59,7 @@ const dino = {
     reset() {
         this.element.style.bottom = `${JUMP_STARTING_POINT}px`;
         this.isJumping = false;
-        this.jumpHeight = JUMP_HEIGHT;
+        this.jumpHeight = JUMP_INITIAL_HEIGHT;
     }
 };
 
@@ -102,7 +104,7 @@ const obstacles = {
 
     isItSpawningTime() {
         this.timer++;
-        if (this.timer === this.gap) {
+        if (this.timer >= this.gap) {
             this.timer = 0;
             this.gap = Math.floor(Math.random() * (this.maxGap - this.minGap) + this.minGap);
             return true;
@@ -132,6 +134,7 @@ const obstacles = {
     },
 
     detectCollision() {
+        if (!debugMenu.collisionsCheckbox.checked) { return false; }; /////////////////// debug menu
         if (!this.onScreen.length) { return false; };
 
         if (this.onScreen[0].offsetLeft <= dino.element.offsetLeft + dino.element.offsetWidth - 2
@@ -179,7 +182,14 @@ function stopInterval() {
 window.addEventListener('keydown', control);
 
 function control(event) {
+    /////////////////////////////// debug menu ///////////////////////////////
+    if (event.key === 'd') {
+        document.getElementById('debug-menu').classList.toggle('hide');
+        debugMenu.start();
+      };
+    ///////////////////////////////
     if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
+        //event.preventDefault();
         switch(gameState) {
             case 'start':
                 startGame();
@@ -209,7 +219,7 @@ function startGame() {
     document.getElementById('game-start').style.display = 'none';
     display(background);
     display(ground);
-    dino.element.style.bottom = `${JUMP_STARTING_POINT}px`;
+    dino.reset();
     obstacles.getReady();
     startInterval();
 }
@@ -264,3 +274,58 @@ function reStartGame() {
     resetDifficulty();
     startInterval();
 }
+
+/////////////////////////////// debug menu ///////////////////////////////
+const debugMenu = {
+    inputs: Array.from(document.querySelectorAll('input[type=number]')),
+    oldValues: [BACKGROUND_SPEED, FOREGROUND_SPEED, OBSTACLES_INITIAL_GAP, OBSTACLES_MIN_GAP, OBSTACLES_MAX_GAP, JUMP_GRAVITY, JUMP_INITIAL_HEIGHT, JUMP_MAX_HEIGHT],
+    newValues: [],
+    collisionsCheckbox: document.getElementById('collisions'),
+  
+    start() {
+      this.inputs.forEach((input, index) => {
+        input.setAttribute('value', debugMenu.oldValues[index]);
+        input.addEventListener('input', debugMenu.updateValue);
+    });
+  
+      document.getElementById('reset').addEventListener('click', function() {
+        debugMenu.inputs.forEach((input, index) => {input.value = debugMenu.oldValues[index]});
+        debugMenu.newValues = debugMenu.oldValues.slice();
+        debugMenu.setValues(debugMenu.oldValues);
+      });
+
+      this.newValues = this.oldValues.slice();
+    },
+  
+    updateValue(event) {
+        debugMenu.newValues[debugMenu.inputs.indexOf(event.target)] = parseFloat(event.target.value);
+        debugMenu.setValues(debugMenu.newValues);
+    }, 
+
+    setValues(values) {
+        BACKGROUND_SPEED = values[0];
+        background.speed = BACKGROUND_SPEED;
+
+        FOREGROUND_SPEED = values[1];
+        ground.speed = FOREGROUND_SPEED;
+        obstacles.speed = FOREGROUND_SPEED;
+
+        OBSTACLES_INITIAL_GAP = values[2];
+
+        OBSTACLES_MIN_GAP = values[3];
+        obstacles.minGap = OBSTACLES_MIN_GAP;
+        document.getElementById('OBSTACLES_MAX_GAP').min = OBSTACLES_MIN_GAP;
+
+        OBSTACLES_MAX_GAP = values[4];
+        obstacles.maxGap = OBSTACLES_MAX_GAP;
+        document.getElementById('OBSTACLES_MIN_GAP').max = OBSTACLES_MAX_GAP;
+
+        JUMP_GRAVITY = values[5];
+
+        JUMP_INITIAL_HEIGHT = values[6];
+        dino.jumpHeight = JUMP_INITIAL_HEIGHT;
+
+        JUMP_MAX_HEIGHT = values[7];
+        }
+  }
+///////////////////////////////
