@@ -1,14 +1,14 @@
 let BACKGROUND_SPEED = 1; // pixels per frame
-let FOREGROUND_SPEED = 7; // ground & obstacles
+let FOREGROUND_SPEED = 9; // ground & obstacles
 
 const JUMP_STARTING_POINT = 12; // px from the bottom
-let JUMP_GRAVITY = 2;
-let JUMP_INITIAL_HEIGHT = 20; // px per frame
-let JUMP_MAX_HEIGHT = 92;  // px from the bottom
+let JUMP_GRAVITY = 1.2;
+let JUMP_INITIAL_HEIGHT = 12; // px per frame
+let JUMP_MAX_HEIGHT = 120;  // px from the bottom
 
 let OBSTACLES_INITIAL_GAP = 45;
-let OBSTACLES_MIN_GAP = 30;
-let OBSTACLES_MAX_GAP = 240;
+let OBSTACLES_MIN_GAP = 15;
+let OBSTACLES_MAX_GAP = 90;
 
 const background = {
     element: document.getElementById('background'),
@@ -137,9 +137,9 @@ const obstacles = {
         if (!debugMenu.collisionsCheckbox.checked) { return false; }; /////////////////// debug menu
         if (!this.onScreen.length) { return false; };
 
-        if (this.onScreen[0].offsetLeft <= dino.element.offsetLeft + dino.element.offsetWidth - 2
-            && this.onScreen[0].offsetLeft + this.onScreen[0].offsetWidth >= dino.element.offsetLeft) {
-            if (this.onScreen[0].offsetTop <= dino.element.offsetTop + dino.element.offsetHeight) {
+        if (this.onScreen[0].offsetLeft <= dino.element.offsetLeft + dino.element.offsetWidth - 4
+            && this.onScreen[0].offsetLeft + this.onScreen[0].offsetWidth >= dino.element.offsetLeft + 4) {
+            if (this.onScreen[0].offsetTop <= dino.element.offsetTop + dino.element.offsetHeight - 6) {
                 // it only detects collisions between the top of the obstacle and the bottom of the character
                 // since, in this version, there's no way for the obstacle to be on top of the character
                 return true;}
@@ -189,7 +189,7 @@ function control(event) {
       };
     ///////////////////////////////
     if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
-        //event.preventDefault();
+        event.preventDefault();
         switch(gameState) {
             case 'start':
                 startGame();

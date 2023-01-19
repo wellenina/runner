@@ -72,7 +72,6 @@
     background-color: lightgray;
     padding: 15px 25px;
     font-family: 'Press Start 2P';
-    font-size: 1.1rem;
     text-align: end;
     text-transform: uppercase;
 }
@@ -91,13 +90,14 @@ button {
     font-family: inherit;
     text-transform: inherit;
     padding: 12px 22px;
+    margin-left: 30px;
     appearance: none;
 }
 
 input {
     margin-left: 20px;
     padding: 9px;
-    width: 65px;
+    width: 100px;
     font-size: inherit;
     font-family: inherit;
     text-align: inherit;
