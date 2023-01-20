@@ -3,8 +3,9 @@ let FOREGROUND_SPEED = 9; // ground & obstacles
 
 const JUMP_STARTING_POINT = 12; // px from the bottom
 let JUMP_GRAVITY = 1.2;
-let JUMP_INITIAL_HEIGHT = 12; // px per frame
-let JUMP_MAX_HEIGHT = 120;  // px from the bottom
+let JUMP_INITIAL_HEIGHT = 14; // px per frame
+let JUMP_MAX_HEIGHT = 94;  // px from the bottom
+let SHORT_JUMP_MAX_HEIGHT = 78;  // px from the bottom
 
 let OBSTACLES_INITIAL_GAP = 45;
 let OBSTACLES_MIN_GAP = 15;
@@ -31,6 +32,9 @@ const dino = {
     imgDead: 'images/dino-dead.png',
     isJumping: false,
     jumpHeight: JUMP_INITIAL_HEIGHT,
+    longJumpHeight: JUMP_MAX_HEIGHT, // costante
+    shortJumpHeight: SHORT_JUMP_MAX_HEIGHT, // costante
+    jumpGravity: JUMP_GRAVITY,
 
     run() {
         if (frameCounter % 3 !== 0) { return; }; 
@@ -43,10 +47,23 @@ const dino = {
 
     jump() {
         this.element.style.bottom = `${parseFloat(this.element.style.bottom) + this.jumpHeight}px`;
-        if (parseInt(this.element.style.bottom) >= JUMP_MAX_HEIGHT) {
+
+        // when Dino gets to this point, check if the key is still pressed
+        if (this.jumpHeight > 0 && parseInt(this.element.style.bottom) >= this.shortJumpHeight && !isKeyPressed) {
+            console.log('short jump!')
             this.jumpHeight = 0;
+            this.jumpGravity = this.jumpGravity * 1.1;
         };
-        this.jumpHeight = this.jumpHeight - JUMP_GRAVITY;
+
+        // when Dino gets to the higher point, start going down
+        if (parseInt(this.element.style.bottom) >= this.longJumpHeight) {
+            console.log('long jump!')
+            this.jumpHeight = 0;
+            this.jumpGravity = this.jumpGravity * 0.9;
+        };
+        this.jumpHeight = this.jumpHeight - this.jumpGravity;
+
+        // when Dino gets to the bottom, the jump end
         if (parseInt(this.element.style.bottom) <= JUMP_STARTING_POINT) {
             this.reset();
         }
@@ -60,6 +77,7 @@ const dino = {
         this.element.style.bottom = `${JUMP_STARTING_POINT}px`;
         this.isJumping = false;
         this.jumpHeight = JUMP_INITIAL_HEIGHT;
+        this.jumpGravity = JUMP_GRAVITY;
     }
 };
 
@@ -179,6 +197,7 @@ function stopInterval() {
     clearInterval(interval);
 }
 
+let isKeyPressed = false;
 window.addEventListener('keydown', control);
 
 function control(event) {
@@ -195,6 +214,7 @@ function control(event) {
                 startGame();
                 break;
             case 'play':
+                isKeyPressed = true;
                 if (!dino.isJumping) {
                     sounds.play('jump');
                     dino.isJumping = true;
@@ -206,6 +226,10 @@ function control(event) {
           }
     }
 };
+
+window.addEventListener('keyup', function() {
+    if (isKeyPressed) { isKeyPressed = false; }; /////////
+});
 
 window.addEventListener('blur', () => {
     if (gameState === 'play') { stopInterval(); };
@@ -278,7 +302,7 @@ function reStartGame() {
 /////////////////////////////// debug menu ///////////////////////////////
 const debugMenu = {
     inputs: Array.from(document.querySelectorAll('input[type=number]')),
-    oldValues: [BACKGROUND_SPEED, FOREGROUND_SPEED, OBSTACLES_INITIAL_GAP, OBSTACLES_MIN_GAP, OBSTACLES_MAX_GAP, JUMP_GRAVITY, JUMP_INITIAL_HEIGHT, JUMP_MAX_HEIGHT],
+    oldValues: [BACKGROUND_SPEED, FOREGROUND_SPEED, OBSTACLES_INITIAL_GAP, OBSTACLES_MIN_GAP, OBSTACLES_MAX_GAP, JUMP_GRAVITY, JUMP_INITIAL_HEIGHT, JUMP_MAX_HEIGHT, SHORT_JUMP_MAX_HEIGHT],
     newValues: [],
     collisionsCheckbox: document.getElementById('collisions'),
   
@@ -321,11 +345,16 @@ const debugMenu = {
         document.getElementById('OBSTACLES_MIN_GAP').max = OBSTACLES_MAX_GAP;
 
         JUMP_GRAVITY = values[5];
+        dino.jumpGravity = JUMP_GRAVITY;
 
         JUMP_INITIAL_HEIGHT = values[6];
         dino.jumpHeight = JUMP_INITIAL_HEIGHT;
 
         JUMP_MAX_HEIGHT = values[7];
+        dino.longJumpHeight = JUMP_MAX_HEIGHT,
+
+        SHORT_JUMP_MAX_HEIGHT = values[8];
+        dino.shortJumpHeight = SHORT_JUMP_MAX_HEIGHT;
         }
   }
 ///////////////////////////////
