@@ -20,7 +20,7 @@ const background = {
 const ground = {
     element: document.getElementById('ground'),
     speed: FOREGROUND_SPEED,
-    loopingPoint: 600
+    loopingPoint: 1200
 }
 
 const dino = {
