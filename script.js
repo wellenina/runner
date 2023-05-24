@@ -50,20 +50,18 @@ const dino = {
 
         // when Dino gets to this point, check if the key is still pressed
         if (this.jumpHeight > 0 && parseInt(this.element.style.bottom) >= this.shortJumpHeight && !isKeyPressed) {
-            console.log('short jump!')
             this.jumpHeight = 0;
             this.jumpGravity = this.jumpGravity * 1.1;
         };
 
         // when Dino gets to the higher point, start going down
         if (parseInt(this.element.style.bottom) >= this.longJumpHeight) {
-            console.log('long jump!')
             this.jumpHeight = 0;
             this.jumpGravity = this.jumpGravity * 0.9;
         };
         this.jumpHeight = this.jumpHeight - this.jumpGravity;
 
-        // when Dino gets to the bottom, the jump end
+        // when Dino gets to the bottom, the jump ends
         if (parseInt(this.element.style.bottom) <= JUMP_STARTING_POINT) {
             this.reset();
         }
@@ -187,6 +185,7 @@ const sounds = {
 
 const runnerContainer = document.getElementById('runner-container');
 let gameState = 'start';
+let level = 1;
 let frameCounter = 0;
 let interval;
 
@@ -228,7 +227,7 @@ function control(event) {
 };
 
 window.addEventListener('keyup', function() {
-    if (isKeyPressed) { isKeyPressed = false; }; /////////
+    if (isKeyPressed) { isKeyPressed = false; };
 });
 
 window.addEventListener('blur', () => {
@@ -265,11 +264,19 @@ function update() {
     if (obstacles.isItSpawningTime()) { obstacles.spawn(); };
     obstacles.move();
     score.increment();
+    if (score.current >= 150 * level) {
+        increaseDifficulty();
+        level++;
+    };
     if (obstacles.detectCollision()) { endGame(); };
 }
 
 function increaseDifficulty() {
-    // some code
+    background.speed += 0.3;
+    ground.speed += 0.3;
+    obstacles.speed += 0.3;
+    obstacles.maxGap = Math.max(obstacles.minGap, obstacles.maxGap - 7);
+    debugMenu.updateDifficulty();
 }
 
 function resetDifficulty() {
@@ -295,6 +302,7 @@ function reStartGame() {
     dino.reset();
     score.reset();
     obstacles.reset();
+    level = 1;
     resetDifficulty();
     startInterval();
 }
@@ -355,6 +363,12 @@ const debugMenu = {
 
         SHORT_JUMP_MAX_HEIGHT = values[8];
         dino.shortJumpHeight = SHORT_JUMP_MAX_HEIGHT;
-        }
+    },
+
+    updateDifficulty() {
+        this.inputs[0].setAttribute('value', background.speed);
+        this.inputs[1].setAttribute('value', ground.speed);
+        this.inputs[4].setAttribute('value', obstacles.maxGap);
+    }
   }
 ///////////////////////////////
