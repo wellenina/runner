@@ -11,62 +11,11 @@
 </head>
 <body>
     <div id="runner-container">
-        <p id="score">00000</p>
-        <h3 id="game-start">Press the spacebar or arrow up key<br>to start the game</h3>
-        <h3 id="game-over">Game over</h3>
+        <h3 id="game-start">Press the spacebar or arrow up key<br>to start jumping</h3>
         <img src="images/background.png" id="background">
         <img src="images/ground.png" id="ground">
         <img src="images/dino-idle.png" id="dino">
     </div>
-
-    <p id="info">Press 'D' to debug</p>
-
-
-
-    <div id="debug-menu" class="hide">
-
-        <div>
-            <label for="BACKGROUND_SPEED">Background speed (pixel per frame)</label>
-            <input type="number" id="BACKGROUND_SPEED" name="BACKGROUND_SPEED" min="0">
-        </div>
-        <div>
-            <label for="FOREGROUND_SPEED">Obstacles speed (pixel per frame)</label>
-            <input type="number" id="FOREGROUND_SPEED" name="FOREGROUND_SPEED" min="0">
-        </div>
-        <div>
-            <label for="OBSTACLES_INITIAL_GAP">First obstacle (frames from the start)</label>
-            <input type="number" id="OBSTACLES_INITIAL_GAP" name="OBSTACLES_INITIAL_GAP" min="0">
-        </div>
-        <div>
-            <label for="OBSTACLES_MIN_GAP">Minimum distance between obstacles (frames)</label>
-            <input type="number" id="OBSTACLES_MIN_GAP" name="OBSTACLES_MIN_GAP" min="0">
-        </div>
-        <div>
-            <label for="OBSTACLES_MAX_GAP">Maximum distance between obstacles (frames)</label>
-            <input type="number" id="OBSTACLES_MAX_GAP" name="OBSTACLES_MAX_GAP" min="0">
-        </div>
-        <div>
-            <label for="JUMP_GRAVITY">Jump gravity</label>
-            <input type="number" id="JUMP_GRAVITY" name="JUMP_GRAVITY" min="0">
-        </div>
-        <div>
-            <label for="JUMP_INITIAL_HEIGHT">Initial jump height (pixel)</label>
-            <input type="number" id="JUMP_INITIAL_HEIGHT" name="JUMP_INITIAL_HEIGHT" min="0">
-        </div>
-        <div>
-            <label for="JUMP_MAX_HEIGHT">Long jump height (pixel from bottom)</label>
-            <input type="number" id="JUMP_MAX_HEIGHT" name="JUMP_MAX_HEIGHT" min="0">
-        </div>
-        <div>
-            <label for="SHORT_JUMP_MAX_HEIGHT">Short jump height (pixel from bottom)</label>
-            <input type="number" id="SHORT_JUMP_MAX_HEIGHT" name="SHORT_JUMP_MAX_HEIGHT" min="0">
-        </div>
-        <div>
-            <input type="checkbox" id="collisions" name="collisions" value="collisions" checked />
-            <label for="collisions">Detect collisions</label>
-            <button type="button" id="reset">Reset</button>
-        </div>
-        </div>
 
 </body>
 </html>
