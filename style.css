@@ -28,11 +28,6 @@
     position: absolute;
     margin: 0;
 }
-
-#runner-container > p {
-    right: 10px;
-    top: 10px;
-  }
   
 #runner-container > h3 {
     text-align: center;
@@ -57,7 +52,16 @@
 
 #dino {
     bottom: 12px;
-    left: 115px;
+    left: 105px;
+}
+
+#large-cactus {
+    bottom: 12px;
+    left: 195px;
+}
+#small-cactus {
+    bottom: 12px;
+    left: 170px;
 }
 
 /* horizontal lines */

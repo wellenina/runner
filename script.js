@@ -134,7 +134,6 @@ function startGame() {
     document.getElementById('game-start').style.display = 'none';
     display(background);
     display(ground);
-    display(horizontalLines); // LINEE DELLA GRIGLIA
 
     dino.element.setAttribute('src', dino.imgJump);
     dino.reset();
