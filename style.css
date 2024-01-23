@@ -1,18 +1,32 @@
+:root {
+    --text-color: #5d5d5d;
+    --background-color: rgb(247, 247, 247);
+}
+
+.main {
+    margin: 50px auto;
+    display: flex;
+    justify-content: center;
+    column-gap: 50px;
+}
+
+.main * {
+    font-family: 'Press Start 2P', cursive;
+    color: var(--text-color);
+}
+
 #runner-container {
-    width: 600px;
-    height: 150px;
+    width: 330px;
+    height: 330px;
     overflow: hidden;
     position: relative;
-    background-color: rgb(247, 247, 247);
+    background-color: var(--background-color);
     border: 1px solid black;
-    margin: 50px auto;
 }
   
 #runner-container * {
     position: absolute;
     margin: 0;
-    font-family: 'Press Start 2P', cursive;
-    color: #5d5d5d;
 }
 
 #runner-container > p {
@@ -23,32 +37,113 @@
 #runner-container > h3 {
     text-align: center;
     font-size: 15px;
-    line-height: 1.5;
-    top: 34px;
-    left: 0;
-    right: 0;
+    line-height: 1.8;
+    top: 55px;
+    left: 10px;
+    right: 10px;
 }
 
 #background {
-    top: 45px;
+    left: 0;
+    top: 105px;
     display: none;
 }
 
 #ground {
+    left: 0;
     bottom: 10px;
     display: none;
 }
 
 #dino {
     bottom: 12px;
-    left: 22px;
+    left: 115px;
 }
 
-#info {
-    font-family: 'Press Start 2P';
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    text-align: center;
-    color: lightgray;
-    margin: 20px;
+/* horizontal lines */
+#lines-container {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+.line {
+    width: 100%;
+    height: 41px;
+    opacity: 0.5;
+    border-bottom: 1px dashed var(--text-color);
+    border-top: 1px dashed var(--text-color);
+}
+.line.one {
+    bottom: 12px;
+}
+.line.two {
+    bottom: 96px;
+}
+.line.three {
+    bottom: 180px;
+}
+.line.four {
+    bottom: 264px;
+}
+
+/* menu */
+.menu-container {
+    width: 340px;
+}
+.menu-container .row {
+    margin: 1.2rem 0;
+    text-wrap: nowrap;
+}
+.menu-container .display-text {
+    margin-top: 4rem;
+}
+.menu-container * {
+    font-size: 14px;
+}
+.slidecontainer label {
+    display: block;
+}
+
+.slider {
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    width: 100%;
+    height: 10px;
+    margin: 8px 0 0;
+    background: var(--background-color);
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--text-color);
+    cursor: pointer;
+}
+  
+.slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--text-color);
+    cursor: pointer;
+}
+
+input[type=checkbox] {
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    border: 1px solid black;
+    border-radius: 2px;
+    cursor: pointer;
+}
+input[type=checkbox]:checked {
+    background-color: var(--text-color);
 }

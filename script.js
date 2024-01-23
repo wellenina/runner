@@ -1,53 +1,87 @@
 const JUMP_STARTING_POINT = 12; // px from the bottom
+const DINO_HEIGHT = 43;
+let JUMP_INITIAL_VELOCITY = 14; // px per frame
 let JUMP_GRAVITY = 1.2;
-let JUMP_INITIAL_HEIGHT = 14; // px per frame
-let JUMP_MAX_HEIGHT = 94;  // px from the bottom
-let SHORT_JUMP_MAX_HEIGHT = 78;  // px from the bottom
+let JUMP_FALL_GRAVITY = 1.2;
 
-const background = {
-    element: document.getElementById('background'),
+const background = document.getElementById('background');
+const ground = document.getElementById('ground');
+const horizontalLines = document.getElementById("lines-container");
+
+const jumpHeightText = document.getElementById('jump-height-text');
+const jumpDurationText = document.getElementById('jump-duration-text');
+
+const initialVelocitySlider = document.getElementById("initial-velocity");
+const gravitySlider = document.getElementById("jump-gravity");
+const fallGravitySlider = document.getElementById("fall-gravity");
+const showLinesCheckbox = document.getElementById("show-grid");
+
+initialVelocitySlider.oninput = function() {
+    JUMP_INITIAL_VELOCITY = parseInt(this.value);
+    dino.velocity = JUMP_INITIAL_VELOCITY;
 }
-const ground = {
-    element: document.getElementById('ground'),
+gravitySlider.oninput = function() {
+    JUMP_GRAVITY = parseInt(this.value) / 10;
+    dino.gravity = JUMP_GRAVITY;
 }
+fallGravitySlider.oninput = function() {
+    JUMP_FALL_GRAVITY = parseInt(this.value) / 10;
+}
+showLinesCheckbox.oninput = function() {
+    if (horizontalLines.style.display == 'block') {
+        horizontalLines.style.display = 'none';
+    } else {
+        horizontalLines.style.display = 'block';
+    }
+}
+
 
 const dino = {
     element: document.getElementById('dino'),
     imgIdle: 'images/dino-idle.png',
     imgJump: 'images/dino-jump.png',
+
     isJumping: false,
-    jumpHeight: JUMP_INITIAL_HEIGHT,
-    longJumpHeight: JUMP_MAX_HEIGHT, // costante
-    shortJumpHeight: SHORT_JUMP_MAX_HEIGHT, // costante
-    jumpGravity: JUMP_GRAVITY,
+    isGoingUp: false,
+    jumpTimer: 0,
+
+    velocity: JUMP_INITIAL_VELOCITY,
+    gravity: JUMP_GRAVITY,
+
+    startJump() {
+        this.isJumping = true;
+        this.isGoingUp = true;
+        this.jumpTimer = 0;
+
+        jumpHeightText.innerHTML = '';
+        jumpDurationText.innerHTML = '';
+    },
 
     jump() {
-        this.element.style.bottom = `${parseFloat(this.element.style.bottom) + this.jumpHeight}px`;
+        this.element.style.bottom = `${parseInt(this.element.style.bottom) + this.velocity}px`;
+        this.velocity = this.velocity - this.gravity;
 
-        // when Dino gets to this point, check if the key is still pressed
-        if (this.jumpHeight > 0 && parseInt(this.element.style.bottom) >= this.shortJumpHeight && !isKeyPressed) {
-            this.jumpHeight = 0;
-            this.jumpGravity = this.jumpGravity * 1.1;
-        };
-
-        // when Dino gets to the higher point, start going down
-        if (parseInt(this.element.style.bottom) >= this.longJumpHeight) {
-            this.jumpHeight = 0;
-            this.jumpGravity = this.jumpGravity * 0.9;
-        };
-        this.jumpHeight = this.jumpHeight - this.jumpGravity;
+        // when Dino gets to the peak
+        if (this.isGoingUp && this.velocity <= 0) {
+            this.isGoingUp = false;
+            this.gravity = JUMP_FALL_GRAVITY;
+            let jumpHeight = ((parseInt(this.element.style.bottom) - JUMP_STARTING_POINT) / DINO_HEIGHT + 1).toFixed(2);
+            jumpHeightText.innerHTML = jumpHeight + " Dinos";
+        }
 
         // when Dino gets to the bottom, the jump ends
         if (parseInt(this.element.style.bottom) <= JUMP_STARTING_POINT) {
             this.reset();
+            let duration = this.jumpTimer / 1000;
+            jumpDurationText.innerHTML = duration + " seconds";
         }
     },
 
     reset() {
         this.element.style.bottom = `${JUMP_STARTING_POINT}px`;
         this.isJumping = false;
-        this.jumpHeight = JUMP_INITIAL_HEIGHT;
-        this.jumpGravity = JUMP_GRAVITY;
+        this.velocity = JUMP_INITIAL_VELOCITY;
+        this.gravity = JUMP_GRAVITY;
     }
 };
 
@@ -61,7 +95,6 @@ const sounds = {
 
 
 let gameState = 'start';
-let frameCounter = 0;
 let interval;
 
 function startInterval() {
@@ -71,7 +104,6 @@ function stopInterval() {
     clearInterval(interval);
 }
 
-let isKeyPressed = false;
 window.addEventListener('keydown', control);
 
 function control(event) {
@@ -82,18 +114,13 @@ function control(event) {
                 startGame();
                 break;
             case 'play':
-                isKeyPressed = true;
                 if (!dino.isJumping) {
                     sounds.play('jump');
-                    dino.isJumping = true;
+                    dino.startJump();
                 };
           }
     }
 };
-
-window.addEventListener('keyup', function() {
-    if (isKeyPressed) { isKeyPressed = false; };
-});
 
 window.addEventListener('blur', () => {
     if (gameState === 'play') { stopInterval(); };
@@ -107,18 +134,21 @@ function startGame() {
     document.getElementById('game-start').style.display = 'none';
     display(background);
     display(ground);
+    display(horizontalLines); // LINEE DELLA GRIGLIA
+
     dino.element.setAttribute('src', dino.imgJump);
     dino.reset();
+
     startInterval();
 }
 
-function display(obj) {
-    obj.element.style.left = 0;
-    obj.element.style.display = 'block';
+function display(element) {
+    element.style.display = 'block';
 }
 
 function update() {
-    frameCounter++;
+    dino.jumpTimer += 30;
+
     if (dino.isJumping) {
         dino.jump();
     }

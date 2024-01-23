@@ -10,11 +10,47 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div id="runner-container">
-        <h3 id="game-start">Press the spacebar or arrow up key<br>to start jumping</h3>
-        <img src="images/background.png" id="background">
-        <img src="images/ground.png" id="ground">
-        <img src="images/dino-idle.png" id="dino">
+    <div class="main">
+        <div id="runner-container">
+            <h3 id="game-start">Press the spacebar or arrow up key<br>to start jumping</h3>
+            <img src="images/background.png" id="background">
+            <img src="images/ground.png" id="ground">
+            <img src="images/dino-idle.png" id="dino">
+
+            <div id="lines-container">
+                <div class="line one"></div>
+                <div class="line two"></div>
+                <div class="line three"></div>
+                <div class="line four"></div>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <div class="slidecontainer row">
+                <label for="initial-velocity">Initial Velocity</label>
+                <input type="range" min="1" max="70" value="14" class="slider" id="initial-velocity">
+            </div>
+
+            <div class="slidecontainer row">
+                <label for="jump-gravity">Jump Gravity</label>
+                <input type="range" min="1" max="100" value="12" class="slider" id="jump-gravity">
+            </div>
+
+            <div class="slidecontainer row">
+                <label for="fall-gravity">Fall Gravity</label>
+                <input type="range" min="1" max="100" value="12" class="slider" id="fall-gravity">
+            </div>
+
+            <div class="row">
+                <input type="checkbox" name="show-grid" id="show-grid" checked>
+                <label for="show-grid">Show Horizontal Lines</label>
+            </div>
+
+            <div class="display-text">
+                <p class="row">Jump Height: <span id="jump-height-text"></span></p>
+                <p class="row">Jump Duration: <span id="jump-duration-text"></span></p>
+            </div>
+        </div>
     </div>
 
 </body>
