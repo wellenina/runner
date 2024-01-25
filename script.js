@@ -104,10 +104,15 @@ function stopInterval() {
     clearInterval(interval);
 }
 
-window.addEventListener('keydown', control);
+window.addEventListener('keydown', (event) => {
+    if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
+        control(event);
+    }
+});
+document.getElementById('runner-container').addEventListener("touchstart", control);
+document.getElementById('runner-container').addEventListener("mousedown", control);
 
 function control(event) {
-    if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'ArrowUp' || event.key === 'Up') {
         event.preventDefault();
         switch(gameState) {
             case 'start':
@@ -119,7 +124,6 @@ function control(event) {
                     dino.startJump();
                 };
           }
-    }
 };
 
 window.addEventListener('blur', () => {

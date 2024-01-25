@@ -96,13 +96,6 @@
 }
 .menu-container .row {
     margin: 1.2rem 0;
-    text-wrap: nowrap;
-}
-.menu-container .display-text {
-    margin-top: 4rem;
-}
-.menu-container * {
-    font-size: 14px;
 }
 .slidecontainer label {
     display: block;
@@ -150,4 +143,38 @@ input[type=checkbox] {
 }
 input[type=checkbox]:checked {
     background-color: var(--text-color);
+}
+
+/* larger screens */
+@media (min-width: 560px) {
+    #dino {
+        left: 105px;
+    }
+    .menu-container * {
+        font-size: 14px;
+        text-wrap: nowrap;
+    }
+    .menu-container .display-text {
+        margin-top: 4rem;
+    }
+}
+
+/* mobile */
+@media (max-width: 560px) {
+    .main {
+        flex-direction: column;
+        align-items: center;
+    }
+    #runner-container, .menu-container {
+        width: 250px !important;
+    }
+    #dino {
+        left: 85px;
+    }
+    .menu-container * {
+        font-size: 0.6rem;
+    }
+    .menu-container .display-text {
+        margin-top: 2rem;
+    }
 }
